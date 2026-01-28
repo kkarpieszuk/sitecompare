@@ -33,7 +33,7 @@ async function run(configPath) {
         
         // Take new screenshot
         const screenshotBuffer = await takeScreenshot(url);
-        const newScreenshotPath = await saveScreenshot(urlHash, screenshotBuffer);
+        const newScreenshotPath = await saveScreenshot(url, urlHash, screenshotBuffer);
         
         if (!existingScreenshot) {
           // First screenshot for this URL

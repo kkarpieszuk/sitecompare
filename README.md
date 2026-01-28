@@ -62,7 +62,7 @@ Plik konfiguracyjny musi być w formacie JSON i zawierać tablicę `urls`:
 
 ## Jak to działa
 
-1. **Pierwszy uruchomienie dla URL**: Aplikacja wykonuje zrzut ekranu i zapisuje go jako `{hash}-{data}.png`
+1. **Pierwszy uruchomienie dla URL**: Aplikacja wykonuje zrzut ekranu i zapisuje go jako `{domena}-{hash}-{data-czas}.png`
 2. **Kolejne uruchomienia**: 
    - Wykonuje nowy zrzut ekranu
    - Porównuje go z najnowszym istniejącym zrzutem
@@ -75,13 +75,18 @@ Plik konfiguracyjny musi być w formacie JSON i zawierać tablicę `urls`:
 Zrzuty ekranu są zapisywane w:
 ```
 ~/.sitecompare/
-├── abc123def456-2024-01-15.png
-├── abc123def456-2024-01-16.png
-├── 789ghi012jkl-2024-01-15.png
+├── example_com-abc123def456-2024-01-15-14-30-45.png
+├── example_com-abc123def456-2024-01-15-14-35-22.png
+├── github_com-789ghi012jkl-2024-01-15-15-00-00.png
 └── ...
 ```
 
-Format nazwy pliku: `{hash_url}-{YYYY-MM-DD}.png`
+Format nazwy pliku: `{domena}-{hash_url}-{YYYY-MM-DD-HH-MM-SS}.png`
+
+Gdzie:
+- `{domena}` - główna domena z URL (kropki zamienione na podkreślniki)
+- `{hash_url}` - hash SHA256 całego URL (pierwsze 16 znaków)
+- `{YYYY-MM-DD-HH-MM-SS}` - data i godzina wykonania zrzutu
 
 ## Raport
 
@@ -106,20 +111,20 @@ RAPORT PORÓWNANIA ZRZUTÓW EKRANU
 📸 NOWE ZRZUTY EKRANU:
 --------------------------------------------------------------------------------
 1. https://example.com
-   Zapisano: /home/user/.sitecompare/abc123def456-2024-01-15.png
+   Zapisano: /home/user/.sitecompare/example_com-abc123def456-2024-01-15-14-30-45.png
 
 ✅ BEZ ZMIAN (różnica < 5%):
 --------------------------------------------------------------------------------
 1. https://example2.com
    Różnica: 0.12%
-   Aktualny: /home/user/.sitecompare/789ghi012jkl-2024-01-15.png
+   Aktualny: /home/user/.sitecompare/example2_com-789ghi012jkl-2024-01-15-14-35-22.png
 
 🔴 WYKRYTO ZMIANY (różnica ≥ 5%):
 --------------------------------------------------------------------------------
 1. https://github.com
    Różnica: 15.34%
-   Poprzedni: /home/user/.sitecompare/mno345pqr678-2024-01-14.png
-   Aktualny:  /home/user/.sitecompare/mno345pqr678-2024-01-15.png
+   Poprzedni: /home/user/.sitecompare/github_com-mno345pqr678-2024-01-14-10-00-00.png
+   Aktualny:  /home/user/.sitecompare/github_com-mno345pqr678-2024-01-15-15-00-00.png
 
 ================================================================================
 PODSUMOWANIE:
