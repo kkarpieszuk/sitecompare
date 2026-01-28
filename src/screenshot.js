@@ -29,6 +29,10 @@ async function takeScreenshot(url) {
       timeout: 30000
     });
 
+    // Wait 6 seconds for dynamic content (e.g., cookie banners, lazy loading)
+    console.log(`  Oczekiwanie 6 sekund na załadowanie dynamicznych elementów...`);
+    await new Promise(resolve => setTimeout(resolve, 6000));
+
     // Take screenshot
     const screenshot = await page.screenshot({
       fullPage: true,

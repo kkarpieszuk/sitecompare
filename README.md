@@ -64,9 +64,11 @@ Plik konfiguracyjny musi być w formacie JSON i zawierać tablicę `urls`:
 ## Jak to działa
 
 1. **Pierwszy uruchomienie dla URL**:
-   - Aplikacja wykonuje zrzut ekranu i zapisuje go jako `{domena}-{hash}-{data-czas}.png`
+   - Aplikacja łączy się ze stroną i czeka 6 sekund na załadowanie dynamicznych elementów (cookie banners, lazy loading, itp.)
+   - Wykonuje zrzut ekranu i zapisuje go jako `{domena}-{hash}-{data-czas}.png`
    - Zapisuje kod HTML jako `{domena}-{hash}-{data-czas}.html`
 2. **Kolejne uruchomienia**:
+   - Łączy się ze stroną i czeka 6 sekund
    - Wykonuje nowy zrzut ekranu i pobiera HTML
    - Porównuje obraz z najnowszym istniejącym zrzutem (pixel-by-pixel)
    - Porównuje HTML z poprzednią wersją (line-by-line diff)
