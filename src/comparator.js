@@ -23,9 +23,9 @@ async function compareImages(image1Path, image2Path, threshold = 5) {
   try {
     const img1 = await readPNG(image1Path);
     const img2 = await readPNG(image2Path);
-    
+
     const { width, height } = img1;
-    
+
     // Check if dimensions match
     if (img1.width !== img2.width || img1.height !== img2.height) {
       // If dimensions differ, consider it a significant change
@@ -34,10 +34,10 @@ async function compareImages(image1Path, image2Path, threshold = 5) {
         hasChanges: true
       };
     }
-    
+
     // Create a diff image buffer (not saved, just for pixelmatch)
     const diff = new PNG({ width, height });
-    
+
     // Compare images
     const numDiffPixels = pixelmatch(
       img1.data,
@@ -47,10 +47,10 @@ async function compareImages(image1Path, image2Path, threshold = 5) {
       height,
       { threshold: 0.1 }
     );
-    
+
     const totalPixels = width * height;
     const differencePercent = (numDiffPixels / totalPixels) * 100;
-    
+
     return {
       differencePercent: parseFloat(differencePercent.toFixed(2)),
       hasChanges: differencePercent >= threshold
