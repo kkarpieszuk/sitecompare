@@ -65,14 +65,14 @@ async function ensureScreenshotDir() {
 /**
  * Saves a screenshot buffer to a file
  * @param {string} url - Full URL (for domain extraction)
- * @param {string} urlHash - Hash of the URL
+ * @param {string} identifier - Hash of the URL or slug
  * @param {Buffer} buffer - Screenshot buffer
  * @returns {Promise<string>} - Path to saved file
  */
-async function saveScreenshot(url, urlHash, buffer) {
+async function saveScreenshot(url, identifier, buffer) {
   await ensureScreenshotDir();
   const domain = extractDomain(url);
-  const filename = `${domain}-${urlHash}-${getDateString()}.png`;
+  const filename = `${domain}-${identifier}-${getDateString()}.png`;
   const filepath = path.join(getScreenshotDir(), filename);
   await fs.writeFile(filepath, buffer);
   return filepath;
@@ -81,36 +81,37 @@ async function saveScreenshot(url, urlHash, buffer) {
 /**
  * Saves HTML content to a file
  * @param {string} url - Full URL (for domain extraction)
- * @param {string} urlHash - Hash of the URL
+ * @param {string} identifier - Hash of the URL or slug
  * @param {string} html - HTML content
  * @returns {Promise<string>} - Path to saved file
  */
-async function saveHtml(url, urlHash, html) {
+async function saveHtml(url, identifier, html) {
   await ensureScreenshotDir();
   const domain = extractDomain(url);
-  const filename = `${domain}-${urlHash}-${getDateString()}.html`;
+  const filename = `${domain}-${identifier}-${getDateString()}.html`;
   const filepath = path.join(getScreenshotDir(), filename);
   await fs.writeFile(filepath, html, 'utf-8');
   return filepath;
 }
 
 /**
- * Gets all screenshots for a given URL hash
- * @param {string} urlHash - Hash of the URL
+ * Gets all screenshots for a given identifier (hash or slug)
+ * @param {string} identifier - Hash of the URL or slug
  * @returns {Promise<Array<{path: string, date: string}>>} - Array of screenshot info, sorted by date (newest first)
  */
-async function getAllScreenshots(urlHash) {
+async function getAllScreenshots(identifier) {
   await ensureScreenshotDir();
   const dir = getScreenshotDir();
   
   try {
     const files = await fs.readdir(dir);
     const screenshots = files
-      .filter(file => file.includes(urlHash) && file.endsWith('.png'))
+      .filter(file => file.includes(identifier) && file.endsWith('.png'))
       .map(file => {
-        // Match format: {domain}-{hash}-{YYYY-MM-DD-HH-MM-SS}.png
-        const match = file.match(/^(.+)-([a-f0-9]+)-(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})\.png$/);
-        if (match) {
+        // Match format: {domain}-{identifier}-{YYYY-MM-DD-HH-MM-SS}.png
+        // identifier can be hash (hex) or slug (alphanumeric with dashes)
+        const match = file.match(/^(.+?)-([a-zA-Z0-9\-]+)-(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})\.png$/);
+        if (match && match[2] === identifier) {
           return {
             path: path.join(dir, file),
             date: match[3],
@@ -129,22 +130,23 @@ async function getAllScreenshots(urlHash) {
 }
 
 /**
- * Gets all HTML files for a given URL hash
- * @param {string} urlHash - Hash of the URL
+ * Gets all HTML files for a given identifier (hash or slug)
+ * @param {string} identifier - Hash of the URL or slug
  * @returns {Promise<Array<{path: string, date: string}>>} - Array of HTML file info, sorted by date (newest first)
  */
-async function getAllHtmlFiles(urlHash) {
+async function getAllHtmlFiles(identifier) {
   await ensureScreenshotDir();
   const dir = getScreenshotDir();
   
   try {
     const files = await fs.readdir(dir);
     const htmlFiles = files
-      .filter(file => file.includes(urlHash) && file.endsWith('.html'))
+      .filter(file => file.includes(identifier) && file.endsWith('.html'))
       .map(file => {
-        // Match format: {domain}-{hash}-{YYYY-MM-DD-HH-MM-SS}.html
-        const match = file.match(/^(.+)-([a-f0-9]+)-(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})\.html$/);
-        if (match) {
+        // Match format: {domain}-{identifier}-{YYYY-MM-DD-HH-MM-SS}.html
+        // identifier can be hash (hex) or slug (alphanumeric with dashes)
+        const match = file.match(/^(.+?)-([a-zA-Z0-9\-]+)-(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})\.html$/);
+        if (match && match[2] === identifier) {
           return {
             path: path.join(dir, file),
             date: match[3],
@@ -163,22 +165,22 @@ async function getAllHtmlFiles(urlHash) {
 }
 
 /**
- * Finds the latest screenshot for a given URL hash
- * @param {string} urlHash - Hash of the URL
+ * Finds the latest screenshot for a given identifier (hash or slug)
+ * @param {string} identifier - Hash of the URL or slug
  * @returns {Promise<string|null>} - Path to the latest screenshot, or null if none exists
  */
-async function findLatestScreenshot(urlHash) {
-  const screenshots = await getAllScreenshots(urlHash);
+async function findLatestScreenshot(identifier) {
+  const screenshots = await getAllScreenshots(identifier);
   return screenshots.length > 0 ? screenshots[0].path : null;
 }
 
 /**
- * Finds the latest HTML file for a given URL hash
- * @param {string} urlHash - Hash of the URL
+ * Finds the latest HTML file for a given identifier (hash or slug)
+ * @param {string} identifier - Hash of the URL or slug
  * @returns {Promise<string|null>} - Path to the latest HTML file, or null if none exists
  */
-async function findLatestHtml(urlHash) {
-  const htmlFiles = await getAllHtmlFiles(urlHash);
+async function findLatestHtml(identifier) {
+  const htmlFiles = await getAllHtmlFiles(identifier);
   return htmlFiles.length > 0 ? htmlFiles[0].path : null;
 }
 

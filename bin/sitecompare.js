@@ -23,10 +23,23 @@ async function main() {
         console.log('Format pliku konfiguracyjnego (JSON):');
         console.log(JSON.stringify({
           urls: [
-            'https://example.com',
+            {
+              url: 'https://example.com',
+              slug: 'homepage',
+              timeout: 6
+            },
+            {
+              url: 'https://example.com/about',
+              slug: 'about-page'
+            },
             'https://example2.com'
           ]
         }, null, 2));
+        console.log('\nPola obiektu URL:');
+        console.log('  url      - (wymagane) adres strony do monitorowania');
+        console.log('  slug     - (opcjonalne) czytelna nazwa używana w nazwach plików i raportach');
+        console.log('  timeout  - (opcjonalne) czas oczekiwania w sekundach (domyślnie: 6)');
+        console.log('\nMożesz też używać prostych stringów URL (bez slug i timeout).');
         process.exit(1);
       }
     }

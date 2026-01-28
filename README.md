@@ -49,17 +49,34 @@ sitecompare
 
 ### Format pliku konfiguracyjnego
 
-Plik konfiguracyjny musi być w formacie JSON i zawierać tablicę `urls`:
+Plik konfiguracyjny musi być w formacie JSON i zawierać tablicę `urls`. Każdy element może być:
+- **Prosty string** - adres URL (używa hash w nazwach plików, timeout 6s)
+- **Obiekt** - z dodatkowymi opcjami
+
+#### Format obiektu URL:
 
 ```json
 {
   "urls": [
-    "https://example.com",
-    "https://example2.com",
-    "https://github.com"
+    {
+      "url": "https://example.com",
+      "slug": "homepage",
+      "timeout": 6
+    },
+    {
+      "url": "https://example.com/about",
+      "slug": "about-page"
+    },
+    "https://example2.com"
   ]
 }
 ```
+
+#### Pola obiektu:
+
+- **`url`** (wymagane) - Adres strony do monitorowania
+- **`slug`** (opcjonalne) - Czytelna nazwa używana w nazwach plików i raportach zamiast hash. Automatycznie normalizowana (lowercase, bez znaków specjalnych)
+- **`timeout`** (opcjonalne) - Czas oczekiwania w sekundach przed wykonaniem zrzutu (domyślnie: 6). Przydatne dla stron z wolno ładującymi się elementami
 
 ## Jak to działa
 
@@ -81,20 +98,20 @@ Plik konfiguracyjny musi być w formacie JSON i zawierać tablicę `urls`:
 Zrzuty ekranu i pliki HTML są zapisywane w:
 ```
 ~/.sitecompare/
-├── example_com-abc123def456-2024-01-15-14-30-45.png
-├── example_com-abc123def456-2024-01-15-14-30-45.html
-├── example_com-abc123def456-2024-01-15-14-35-22.png
-├── example_com-abc123def456-2024-01-15-14-35-22.html
-├── github_com-789ghi012jkl-2024-01-15-15-00-00.png
-├── github_com-789ghi012jkl-2024-01-15-15-00-00.html
+├── example_com-homepage-2024-01-15-14-30-45.png
+├── example_com-homepage-2024-01-15-14-30-45.html
+├── example_com-about-page-2024-01-15-14-35-22.png
+├── example_com-about-page-2024-01-15-14-35-22.html
+├── github_com-abc123def456-2024-01-15-15-00-00.png
+├── github_com-abc123def456-2024-01-15-15-00-00.html
 └── ...
 ```
 
-Format nazwy pliku: `{domena}-{hash_url}-{YYYY-MM-DD-HH-MM-SS}.{rozszerzenie}`
+Format nazwy pliku: `{domena}-{identyfikator}-{YYYY-MM-DD-HH-MM-SS}.{rozszerzenie}`
 
 Gdzie:
 - `{domena}` - główna domena z URL (kropki zamienione na podkreślniki)
-- `{hash_url}` - hash SHA256 całego URL (pierwsze 16 znaków)
+- `{identyfikator}` - slug (jeśli podany) lub hash SHA256 URL (pierwsze 16 znaków)
 - `{YYYY-MM-DD-HH-MM-SS}` - data i godzina wykonania zrzutu
 - `{rozszerzenie}` - `png` dla obrazów, `html` dla kodu źródłowego
 
@@ -120,26 +137,26 @@ RAPORT PORÓWNANIA ZRZUTÓW EKRANU
 
 📸 NOWE ZRZUTY:
 --------------------------------------------------------------------------------
-1. https://example.com
-   Obraz: /home/user/.sitecompare/example_com-abc123def456-2024-01-15-14-30-45.png
-   HTML:  /home/user/.sitecompare/example_com-abc123def456-2024-01-15-14-30-45.html
+1. https://example.com [homepage]
+   Obraz: /home/user/.sitecompare/example_com-homepage-2024-01-15-14-30-45.png
+   HTML:  /home/user/.sitecompare/example_com-homepage-2024-01-15-14-30-45.html
 
 ✅ BEZ ZMIAN (różnica < 5%):
 --------------------------------------------------------------------------------
-1. https://example2.com
+1. https://example.com/about [about-page]
    Różnica obrazu: 0.12%
    Różnica HTML:   0.05%
-   Aktualny obraz: /home/user/.sitecompare/example2_com-789ghi012jkl-2024-01-15-14-35-22.png
-   Aktualny HTML:  /home/user/.sitecompare/example2_com-789ghi012jkl-2024-01-15-14-35-22.html
+   Aktualny obraz: /home/user/.sitecompare/example_com-about-page-2024-01-15-14-35-22.png
+   Aktualny HTML:  /home/user/.sitecompare/example_com-about-page-2024-01-15-14-35-22.html
 
 🔴 WYKRYTO ZMIANY (różnica ≥ 5%):
 --------------------------------------------------------------------------------
-1. https://github.com
+1. https://github.com [github-main]
    Zmiany: Obraz: 15.34%, HTML: 8.45%
-   Poprzedni obraz: /home/user/.sitecompare/github_com-mno345pqr678-2024-01-14-10-00-00.png
-   Aktualny obraz:  /home/user/.sitecompare/github_com-mno345pqr678-2024-01-15-15-00-00.png
-   Poprzedni HTML:  /home/user/.sitecompare/github_com-mno345pqr678-2024-01-14-10-00-00.html
-   Aktualny HTML:   /home/user/.sitecompare/github_com-mno345pqr678-2024-01-15-15-00-00.html
+   Poprzedni obraz: /home/user/.sitecompare/github_com-github-main-2024-01-14-10-00-00.png
+   Aktualny obraz:  /home/user/.sitecompare/github_com-github-main-2024-01-15-15-00-00.png
+   Poprzedni HTML:  /home/user/.sitecompare/github_com-github-main-2024-01-14-10-00-00.html
+   Aktualny HTML:   /home/user/.sitecompare/github_com-github-main-2024-01-15-15-00-00.html
 
 ================================================================================
 PODSUMOWANIE:

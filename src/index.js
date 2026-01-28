@@ -23,20 +23,27 @@ async function run(configPath) {
     
     // Process each URL
     for (let i = 0; i < config.urls.length; i++) {
-      const url = config.urls[i];
-      console.log(`[${i + 1}/${config.urls.length}] Przetwarzanie: ${url}`);
+      const urlConfig = config.urls[i];
+      const url = urlConfig.url;
+      const slug = urlConfig.slug;
+      const timeout = urlConfig.timeout !== undefined ? urlConfig.timeout : 6;
+      
+      // Use slug if provided, otherwise use hash
+      const identifier = slug || getUrlHash(url);
+      
+      // Display information
+      const displayName = slug ? `${url} [${slug}]` : url;
+      console.log(`[${i + 1}/${config.urls.length}] Przetwarzanie: ${displayName}`);
       
       try {
-        const urlHash = getUrlHash(url);
-        
         // Check if screenshot and HTML already exist
-        const existingScreenshot = await findLatestScreenshot(urlHash);
-        const existingHtml = await findLatestHtml(urlHash);
+        const existingScreenshot = await findLatestScreenshot(identifier);
+        const existingHtml = await findLatestHtml(identifier);
         
         // Take new screenshot and get HTML
-        const { screenshot: screenshotBuffer, html } = await takeScreenshot(url);
-        const newScreenshotPath = await saveScreenshot(url, urlHash, screenshotBuffer);
-        const newHtmlPath = await saveHtml(url, urlHash, html);
+        const { screenshot: screenshotBuffer, html } = await takeScreenshot(url, timeout);
+        const newScreenshotPath = await saveScreenshot(url, identifier, screenshotBuffer);
+        const newHtmlPath = await saveHtml(url, identifier, html);
         
         if (!existingScreenshot || !existingHtml) {
           // First capture for this URL
@@ -46,6 +53,7 @@ async function run(configPath) {
           results.push({
             type: 'new',
             url,
+            slug,
             newScreenshot: newScreenshotPath,
             newHtml: newHtmlPath
           });
@@ -66,6 +74,7 @@ async function run(configPath) {
             results.push({
               type: 'changed',
               url,
+              slug,
               oldScreenshot: existingScreenshot,
               newScreenshot: newScreenshotPath,
               oldHtml: existingHtml,
@@ -80,6 +89,7 @@ async function run(configPath) {
             results.push({
               type: 'unchanged',
               url,
+              slug,
               oldScreenshot: existingScreenshot,
               newScreenshot: newScreenshotPath,
               oldHtml: existingHtml,
@@ -94,6 +104,7 @@ async function run(configPath) {
         results.push({
           type: 'error',
           url,
+          slug,
           error: error.message
         });
       }

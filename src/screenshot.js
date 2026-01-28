@@ -3,9 +3,10 @@ const puppeteer = require('puppeteer');
 /**
  * Takes a screenshot and gets HTML content of a given URL
  * @param {string} url - URL to screenshot
+ * @param {number} timeout - Seconds to wait before taking screenshot (default: 6)
  * @returns {Promise<{screenshot: Buffer, html: string}>} - Screenshot buffer and HTML content
  */
-async function takeScreenshot(url) {
+async function takeScreenshot(url, timeout = 6) {
   let browser;
   try {
     console.log(`  Wykonywanie zrzutu ekranu dla: ${url}`);
@@ -29,9 +30,9 @@ async function takeScreenshot(url) {
       timeout: 30000
     });
 
-    // Wait 6 seconds for dynamic content (e.g., cookie banners, lazy loading)
-    console.log(`  Oczekiwanie 6 sekund na załadowanie dynamicznych elementów...`);
-    await new Promise(resolve => setTimeout(resolve, 6000));
+    // Wait for dynamic content (e.g., cookie banners, lazy loading)
+    console.log(`  Oczekiwanie ${timeout} sekund na załadowanie dynamicznych elementów...`);
+    await new Promise(resolve => setTimeout(resolve, timeout * 1000));
 
     // Take screenshot
     const screenshot = await page.screenshot({

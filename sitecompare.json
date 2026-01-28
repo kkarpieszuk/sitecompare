@@ -1,6 +1,13 @@
 {
   "urls": [
-    "https://example.com",
-    "https://github.com"
+    {
+      "url": "https://example.com",
+      "slug": "example-homepage"
+    },
+    {
+      "url": "https://github.com",
+      "slug": "github-main",
+      "timeout": 8
+    }
   ]
 }

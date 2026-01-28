@@ -17,7 +17,8 @@ function generateReport(results) {
     console.log('📸 NOWE ZRZUTY:');
     console.log('-'.repeat(80));
     newScreenshots.forEach((result, index) => {
-      console.log(`${index + 1}. ${result.url}`);
+      const displayName = result.slug ? `${result.url} [${result.slug}]` : result.url;
+      console.log(`${index + 1}. ${displayName}`);
       console.log(`   Obraz: ${result.newScreenshot}`);
       console.log(`   HTML:  ${result.newHtml}`);
       console.log('');
@@ -29,7 +30,8 @@ function generateReport(results) {
     console.log('✅ BEZ ZMIAN (różnica < 5%):');
     console.log('-'.repeat(80));
     unchanged.forEach((result, index) => {
-      console.log(`${index + 1}. ${result.url}`);
+      const displayName = result.slug ? `${result.url} [${result.slug}]` : result.url;
+      console.log(`${index + 1}. ${displayName}`);
       console.log(`   Różnica obrazu: ${result.imageDifferencePercent}%`);
       console.log(`   Różnica HTML:   ${result.htmlDifferencePercent}%`);
       console.log(`   Aktualny obraz: ${result.newScreenshot}`);
@@ -43,7 +45,8 @@ function generateReport(results) {
     console.log('🔴 WYKRYTO ZMIANY (różnica ≥ 5%):');
     console.log('-'.repeat(80));
     changed.forEach((result, index) => {
-      console.log(`${index + 1}. ${result.url}`);
+      const displayName = result.slug ? `${result.url} [${result.slug}]` : result.url;
+      console.log(`${index + 1}. ${displayName}`);
       
       // Show what changed
       const changes = [];
