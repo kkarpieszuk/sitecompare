@@ -79,6 +79,22 @@ async function saveScreenshot(url, urlHash, buffer) {
 }
 
 /**
+ * Saves HTML content to a file
+ * @param {string} url - Full URL (for domain extraction)
+ * @param {string} urlHash - Hash of the URL
+ * @param {string} html - HTML content
+ * @returns {Promise<string>} - Path to saved file
+ */
+async function saveHtml(url, urlHash, html) {
+  await ensureScreenshotDir();
+  const domain = extractDomain(url);
+  const filename = `${domain}-${urlHash}-${getDateString()}.html`;
+  const filepath = path.join(getScreenshotDir(), filename);
+  await fs.writeFile(filepath, html, 'utf-8');
+  return filepath;
+}
+
+/**
  * Gets all screenshots for a given URL hash
  * @param {string} urlHash - Hash of the URL
  * @returns {Promise<Array<{path: string, date: string}>>} - Array of screenshot info, sorted by date (newest first)
@@ -86,7 +102,7 @@ async function saveScreenshot(url, urlHash, buffer) {
 async function getAllScreenshots(urlHash) {
   await ensureScreenshotDir();
   const dir = getScreenshotDir();
-
+  
   try {
     const files = await fs.readdir(dir);
     const screenshots = files
@@ -105,8 +121,42 @@ async function getAllScreenshots(urlHash) {
       })
       .filter(Boolean)
       .sort((a, b) => b.date.localeCompare(a.date)); // Sort by date, newest first
-
+    
     return screenshots;
+  } catch (error) {
+    return [];
+  }
+}
+
+/**
+ * Gets all HTML files for a given URL hash
+ * @param {string} urlHash - Hash of the URL
+ * @returns {Promise<Array<{path: string, date: string}>>} - Array of HTML file info, sorted by date (newest first)
+ */
+async function getAllHtmlFiles(urlHash) {
+  await ensureScreenshotDir();
+  const dir = getScreenshotDir();
+  
+  try {
+    const files = await fs.readdir(dir);
+    const htmlFiles = files
+      .filter(file => file.includes(urlHash) && file.endsWith('.html'))
+      .map(file => {
+        // Match format: {domain}-{hash}-{YYYY-MM-DD-HH-MM-SS}.html
+        const match = file.match(/^(.+)-([a-f0-9]+)-(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})\.html$/);
+        if (match) {
+          return {
+            path: path.join(dir, file),
+            date: match[3],
+            filename: file
+          };
+        }
+        return null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.date.localeCompare(a.date)); // Sort by date, newest first
+    
+    return htmlFiles;
   } catch (error) {
     return [];
   }
@@ -122,12 +172,25 @@ async function findLatestScreenshot(urlHash) {
   return screenshots.length > 0 ? screenshots[0].path : null;
 }
 
+/**
+ * Finds the latest HTML file for a given URL hash
+ * @param {string} urlHash - Hash of the URL
+ * @returns {Promise<string|null>} - Path to the latest HTML file, or null if none exists
+ */
+async function findLatestHtml(urlHash) {
+  const htmlFiles = await getAllHtmlFiles(urlHash);
+  return htmlFiles.length > 0 ? htmlFiles[0].path : null;
+}
+
 module.exports = {
   getScreenshotDir,
   getUrlHash,
   extractDomain,
   saveScreenshot,
+  saveHtml,
   getAllScreenshots,
+  getAllHtmlFiles,
   findLatestScreenshot,
+  findLatestHtml,
   ensureScreenshotDir
 };

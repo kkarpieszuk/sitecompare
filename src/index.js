@@ -1,7 +1,8 @@
 const { readConfig } = require('./config');
 const { takeScreenshot } = require('./screenshot');
-const { getUrlHash, saveScreenshot, findLatestScreenshot } = require('./fileManager');
+const { getUrlHash, saveScreenshot, saveHtml, findLatestScreenshot, findLatestHtml } = require('./fileManager');
 const { compareImages } = require('./comparator');
+const { compareHtml } = require('./htmlComparator');
 const { generateReport } = require('./report');
 
 /**
@@ -28,43 +29,63 @@ async function run(configPath) {
       try {
         const urlHash = getUrlHash(url);
         
-        // Check if screenshot already exists
+        // Check if screenshot and HTML already exist
         const existingScreenshot = await findLatestScreenshot(urlHash);
+        const existingHtml = await findLatestHtml(urlHash);
         
-        // Take new screenshot
-        const screenshotBuffer = await takeScreenshot(url);
+        // Take new screenshot and get HTML
+        const { screenshot: screenshotBuffer, html } = await takeScreenshot(url);
         const newScreenshotPath = await saveScreenshot(url, urlHash, screenshotBuffer);
+        const newHtmlPath = await saveHtml(url, urlHash, html);
         
-        if (!existingScreenshot) {
-          // First screenshot for this URL
-          console.log(`  ✓ Pierwszy zrzut ekranu zapisany: ${newScreenshotPath}\n`);
+        if (!existingScreenshot || !existingHtml) {
+          // First capture for this URL
+          console.log(`  ✓ Pierwszy zrzut zapisany:`);
+          console.log(`    Obraz: ${newScreenshotPath}`);
+          console.log(`    HTML:  ${newHtmlPath}\n`);
           results.push({
             type: 'new',
             url,
-            newScreenshot: newScreenshotPath
+            newScreenshot: newScreenshotPath,
+            newHtml: newHtmlPath
           });
         } else {
-          // Compare with existing screenshot
+          // Compare with existing screenshot and HTML
           console.log(`  Porównywanie z poprzednim zrzutem...`);
-          const comparison = await compareImages(existingScreenshot, newScreenshotPath, THRESHOLD);
+          const imageComparison = await compareImages(existingScreenshot, newScreenshotPath, THRESHOLD);
+          console.log(`    Obraz: ${imageComparison.differencePercent}%`);
           
-          if (comparison.hasChanges) {
-            console.log(`  ⚠ Wykryto zmiany: ${comparison.differencePercent}%\n`);
+          const htmlComparison = await compareHtml(existingHtml, newHtmlPath, THRESHOLD);
+          console.log(`    HTML:  ${htmlComparison.differencePercent}% (${htmlComparison.changedLines}/${htmlComparison.totalLines} linii)`);
+          
+          const hasImageChanges = imageComparison.hasChanges;
+          const hasHtmlChanges = htmlComparison.hasChanges;
+          
+          if (hasImageChanges || hasHtmlChanges) {
+            console.log(`  ⚠ Wykryto zmiany!\n`);
             results.push({
               type: 'changed',
               url,
               oldScreenshot: existingScreenshot,
               newScreenshot: newScreenshotPath,
-              differencePercent: comparison.differencePercent
+              oldHtml: existingHtml,
+              newHtml: newHtmlPath,
+              imageDifferencePercent: imageComparison.differencePercent,
+              htmlDifferencePercent: htmlComparison.differencePercent,
+              hasImageChanges,
+              hasHtmlChanges
             });
           } else {
-            console.log(`  ✓ Brak zmian: ${comparison.differencePercent}%\n`);
+            console.log(`  ✓ Brak zmian\n`);
             results.push({
               type: 'unchanged',
               url,
               oldScreenshot: existingScreenshot,
               newScreenshot: newScreenshotPath,
-              differencePercent: comparison.differencePercent
+              oldHtml: existingHtml,
+              newHtml: newHtmlPath,
+              imageDifferencePercent: imageComparison.differencePercent,
+              htmlDifferencePercent: htmlComparison.differencePercent
             });
           }
         }

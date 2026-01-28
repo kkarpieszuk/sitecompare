@@ -14,11 +14,12 @@ function generateReport(results) {
   
   // New screenshots
   if (newScreenshots.length > 0) {
-    console.log('📸 NOWE ZRZUTY EKRANU:');
+    console.log('📸 NOWE ZRZUTY:');
     console.log('-'.repeat(80));
     newScreenshots.forEach((result, index) => {
       console.log(`${index + 1}. ${result.url}`);
-      console.log(`   Zapisano: ${result.newScreenshot}`);
+      console.log(`   Obraz: ${result.newScreenshot}`);
+      console.log(`   HTML:  ${result.newHtml}`);
       console.log('');
     });
   }
@@ -29,8 +30,10 @@ function generateReport(results) {
     console.log('-'.repeat(80));
     unchanged.forEach((result, index) => {
       console.log(`${index + 1}. ${result.url}`);
-      console.log(`   Różnica: ${result.differencePercent}%`);
-      console.log(`   Aktualny: ${result.newScreenshot}`);
+      console.log(`   Różnica obrazu: ${result.imageDifferencePercent}%`);
+      console.log(`   Różnica HTML:   ${result.htmlDifferencePercent}%`);
+      console.log(`   Aktualny obraz: ${result.newScreenshot}`);
+      console.log(`   Aktualny HTML:  ${result.newHtml}`);
       console.log('');
     });
   }
@@ -41,9 +44,21 @@ function generateReport(results) {
     console.log('-'.repeat(80));
     changed.forEach((result, index) => {
       console.log(`${index + 1}. ${result.url}`);
-      console.log(`   Różnica: ${result.differencePercent}%`);
-      console.log(`   Poprzedni: ${result.oldScreenshot}`);
-      console.log(`   Aktualny:  ${result.newScreenshot}`);
+      
+      // Show what changed
+      const changes = [];
+      if (result.hasImageChanges) {
+        changes.push(`Obraz: ${result.imageDifferencePercent}%`);
+      }
+      if (result.hasHtmlChanges) {
+        changes.push(`HTML: ${result.htmlDifferencePercent}%`);
+      }
+      console.log(`   Zmiany: ${changes.join(', ')}`);
+      
+      console.log(`   Poprzedni obraz: ${result.oldScreenshot}`);
+      console.log(`   Aktualny obraz:  ${result.newScreenshot}`);
+      console.log(`   Poprzedni HTML:  ${result.oldHtml}`);
+      console.log(`   Aktualny HTML:   ${result.newHtml}`);
       console.log('');
     });
   }
