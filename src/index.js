@@ -37,8 +37,8 @@ async function run(configPath) {
       
       try {
         // Check if screenshot and HTML already exist
-        const existingScreenshot = await findLatestScreenshot(identifier);
-        const existingHtml = await findLatestHtml(identifier);
+        const existingScreenshot = await findLatestScreenshot(url, identifier);
+        const existingHtml = await findLatestHtml(url, identifier);
         
         // Take new screenshot and get HTML
         const { screenshot: screenshotBuffer, html } = await takeScreenshot(url, timeout);

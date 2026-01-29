@@ -95,23 +95,25 @@ async function saveHtml(url, identifier, html) {
 }
 
 /**
- * Gets all screenshots for a given identifier (hash or slug)
+ * Gets all screenshots for a given URL and identifier (hash or slug)
+ * @param {string} url - Full URL (to extract domain)
  * @param {string} identifier - Hash of the URL or slug
  * @returns {Promise<Array<{path: string, date: string}>>} - Array of screenshot info, sorted by date (newest first)
  */
-async function getAllScreenshots(identifier) {
+async function getAllScreenshots(url, identifier) {
   await ensureScreenshotDir();
   const dir = getScreenshotDir();
-  
+  const domain = extractDomain(url);
+  const prefix = `${domain}-${identifier}`;
+
   try {
     const files = await fs.readdir(dir);
     const screenshots = files
-      .filter(file => file.includes(identifier) && file.endsWith('.png'))
+      .filter(file => file.startsWith(prefix) && file.endsWith('.png'))
       .map(file => {
         // Match format: {domain}-{identifier}-{YYYY-MM-DD-HH-MM-SS}.png
-        // identifier can be hash (hex) or slug (alphanumeric with dashes)
         const match = file.match(/^(.+?)-([a-zA-Z0-9\-]+)-(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})\.png$/);
-        if (match && match[2] === identifier) {
+        if (match && match[1] === domain && match[2] === identifier) {
           return {
             path: path.join(dir, file),
             date: match[3],
@@ -122,7 +124,7 @@ async function getAllScreenshots(identifier) {
       })
       .filter(Boolean)
       .sort((a, b) => b.date.localeCompare(a.date)); // Sort by date, newest first
-    
+
     return screenshots;
   } catch (error) {
     return [];
@@ -130,23 +132,25 @@ async function getAllScreenshots(identifier) {
 }
 
 /**
- * Gets all HTML files for a given identifier (hash or slug)
+ * Gets all HTML files for a given URL and identifier (hash or slug)
+ * @param {string} url - Full URL (to extract domain)
  * @param {string} identifier - Hash of the URL or slug
  * @returns {Promise<Array<{path: string, date: string}>>} - Array of HTML file info, sorted by date (newest first)
  */
-async function getAllHtmlFiles(identifier) {
+async function getAllHtmlFiles(url, identifier) {
   await ensureScreenshotDir();
   const dir = getScreenshotDir();
-  
+  const domain = extractDomain(url);
+  const prefix = `${domain}-${identifier}`;
+
   try {
     const files = await fs.readdir(dir);
     const htmlFiles = files
-      .filter(file => file.includes(identifier) && file.endsWith('.html'))
+      .filter(file => file.startsWith(prefix) && file.endsWith('.html'))
       .map(file => {
         // Match format: {domain}-{identifier}-{YYYY-MM-DD-HH-MM-SS}.html
-        // identifier can be hash (hex) or slug (alphanumeric with dashes)
         const match = file.match(/^(.+?)-([a-zA-Z0-9\-]+)-(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})\.html$/);
-        if (match && match[2] === identifier) {
+        if (match && match[1] === domain && match[2] === identifier) {
           return {
             path: path.join(dir, file),
             date: match[3],
@@ -157,7 +161,7 @@ async function getAllHtmlFiles(identifier) {
       })
       .filter(Boolean)
       .sort((a, b) => b.date.localeCompare(a.date)); // Sort by date, newest first
-    
+
     return htmlFiles;
   } catch (error) {
     return [];
@@ -165,22 +169,24 @@ async function getAllHtmlFiles(identifier) {
 }
 
 /**
- * Finds the latest screenshot for a given identifier (hash or slug)
+ * Finds the latest screenshot for a given URL and identifier (hash or slug)
+ * @param {string} url - Full URL (to extract domain)
  * @param {string} identifier - Hash of the URL or slug
  * @returns {Promise<string|null>} - Path to the latest screenshot, or null if none exists
  */
-async function findLatestScreenshot(identifier) {
-  const screenshots = await getAllScreenshots(identifier);
+async function findLatestScreenshot(url, identifier) {
+  const screenshots = await getAllScreenshots(url, identifier);
   return screenshots.length > 0 ? screenshots[0].path : null;
 }
 
 /**
- * Finds the latest HTML file for a given identifier (hash or slug)
+ * Finds the latest HTML file for a given URL and identifier (hash or slug)
+ * @param {string} url - Full URL (to extract domain)
  * @param {string} identifier - Hash of the URL or slug
  * @returns {Promise<string|null>} - Path to the latest HTML file, or null if none exists
  */
-async function findLatestHtml(identifier) {
-  const htmlFiles = await getAllHtmlFiles(identifier);
+async function findLatestHtml(url, identifier) {
+  const htmlFiles = await getAllHtmlFiles(url, identifier);
   return htmlFiles.length > 0 ? htmlFiles[0].path : null;
 }
 
