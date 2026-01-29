@@ -56,7 +56,7 @@ async function compareImages(image1Path, image2Path, threshold = 5) {
       hasChanges: differencePercent >= threshold
     };
   } catch (error) {
-    throw new Error(`Błąd podczas porównywania obrazów: ${error.message}`);
+    throw new Error(`Error comparing images: ${error.message}`);
   }
 }
 

@@ -58,7 +58,7 @@ async function ensureScreenshotDir() {
   try {
     await fs.mkdir(dir, { recursive: true });
   } catch (error) {
-    throw new Error(`Nie można utworzyć katalogu ${dir}: ${error.message}`);
+    throw new Error(`Cannot create directory ${dir}: ${error.message}`);
   }
 }
 

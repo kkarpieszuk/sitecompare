@@ -1,59 +1,59 @@
 # SiteCompare
 
-Narzędzie CLI do automatycznego porównywania zrzutów ekranu stron internetowych.
+CLI tool for automatic website screenshot comparison.
 
-## Opis
+## Description
 
-SiteCompare to aplikacja wiersza poleceń, która:
-- Wykonuje zrzuty ekranu stron internetowych z pliku konfiguracyjnego
-- Zapisuje kod HTML stron wraz ze zrzutami
-- Zapisuje wszystko w katalogu `~/.sitecompare/`
-- Porównuje nowe zrzuty i HTML z wcześniejszymi wersjami
-- Wykrywa zmiany wizualne (obrazy) i strukturalne (HTML) z progiem tolerancji 5%
-- Generuje szczegółowy raport zmian
+SiteCompare is a command-line application that:
+- Takes screenshots of websites from a configuration file
+- Saves HTML code of pages along with screenshots
+- Stores everything in the `~/.sitecompare/` directory
+- Compares new screenshots and HTML with previous versions
+- Detects visual (images) and structural (HTML) changes with a 5% tolerance threshold
+- Generates detailed change reports
 
-## Instalacja
+## Installation
 
 ```bash
 cd /path/to/sitecompare
 npm install
 ```
 
-Aby zainstalować globalnie:
+To install globally:
 
 ```bash
 npm install -g .
 ```
 
-Lub użyj lokalnie bez instalacji globalnej:
+Or use locally without global installation:
 
 ```bash
 npm link
 ```
 
-## Użycie
+## Usage
 
-### Podstawowe użycie
+### Basic usage
 
 ```bash
 sitecompare conf.json
 ```
 
-### Użycie z domyślnym plikiem konfiguracyjnym
+### Usage with default configuration file
 
-Jeśli w bieżącym katalogu znajduje się plik `sitecompare.json`, możesz uruchomić aplikację bez podawania ścieżki:
+If a `sitecompare.json` file exists in the current directory, you can run the application without specifying a path:
 
 ```bash
 sitecompare
 ```
 
-### Format pliku konfiguracyjnego
+### Configuration file format
 
-Plik konfiguracyjny musi być w formacie JSON i zawierać tablicę `urls`. Każdy element może być:
-- **Prosty string** - adres URL (używa hash w nazwach plików, timeout 6s)
-- **Obiekt** - z dodatkowymi opcjami
+The configuration file must be in JSON format and contain a `urls` array. Each element can be:
+- **Simple string** - URL address (uses hash in filenames, 6s timeout)
+- **Object** - with additional options
 
-#### Format obiektu URL:
+#### URL object format:
 
 ```json
 {
@@ -72,30 +72,30 @@ Plik konfiguracyjny musi być w formacie JSON i zawierać tablicę `urls`. Każd
 }
 ```
 
-#### Pola obiektu:
+#### Object fields:
 
-- **`url`** (wymagane) - Adres strony do monitorowania
-- **`slug`** (opcjonalne) - Czytelna nazwa używana w nazwach plików i raportach zamiast hash. Automatycznie normalizowana (lowercase, bez znaków specjalnych)
-- **`timeout`** (opcjonalne) - Czas oczekiwania w sekundach przed wykonaniem zrzutu (domyślnie: 6). Przydatne dla stron z wolno ładującymi się elementami
+- **`url`** (required) - Page address to monitor
+- **`slug`** (optional) - Human-readable name used in filenames and reports instead of hash. Automatically normalized (lowercase, no special characters)
+- **`timeout`** (optional) - Wait time in seconds before taking a screenshot (default: 6). Useful for pages with slow-loading elements
 
-## Jak to działa
+## How it works
 
-1. **Pierwszy uruchomienie dla URL**:
-   - Aplikacja łączy się ze stroną i czeka 6 sekund na załadowanie dynamicznych elementów (cookie banners, lazy loading, itp.)
-   - Wykonuje zrzut ekranu i zapisuje go jako `{domena}-{hash}-{data-czas}.png`
-   - Zapisuje kod HTML jako `{domena}-{hash}-{data-czas}.html`
-2. **Kolejne uruchomienia**:
-   - Łączy się ze stroną i czeka 6 sekund
-   - Wykonuje nowy zrzut ekranu i pobiera HTML
-   - Porównuje obraz z najnowszym istniejącym zrzutem (pixel-by-pixel)
-   - Porównuje HTML z poprzednią wersją (line-by-line diff)
-   - Oblicza różnicę w procentach dla obu
-   - Jeśli różnica < 5%: uznaje za identyczne
-   - Jeśli różnica ≥ 5%: wykrywa zmiany (w obrazie i/lub HTML)
+1. **First run for URL**: 
+   - Application connects to the page and waits 6 seconds for dynamic elements to load (cookie banners, lazy loading, etc.)
+   - Takes a screenshot and saves it as `{domain}-{hash}-{date-time}.png`
+   - Saves HTML code as `{domain}-{hash}-{date-time}.html`
+2. **Subsequent runs**: 
+   - Connects to the page and waits 6 seconds
+   - Takes a new screenshot and fetches HTML
+   - Compares image with the latest existing screenshot (pixel-by-pixel)
+   - Compares HTML with the previous version (line-by-line diff)
+   - Calculates percentage difference for both
+   - If difference < 5%: considers them identical
+   - If difference ≥ 5%: detects changes (in image and/or HTML)
 
-## Struktura katalogów
+## Directory structure
 
-Zrzuty ekranu i pliki HTML są zapisywane w:
+Screenshots and HTML files are saved in:
 ```
 ~/.sitecompare/
 ├── example_com-homepage-2024-01-15-14-30-45.png
@@ -107,86 +107,86 @@ Zrzuty ekranu i pliki HTML są zapisywane w:
 └── ...
 ```
 
-Format nazwy pliku: `{domena}-{identyfikator}-{YYYY-MM-DD-HH-MM-SS}.{rozszerzenie}`
+Filename format: `{domain}-{identifier}-{YYYY-MM-DD-HH-MM-SS}.{extension}`
 
-Gdzie:
-- `{domena}` - główna domena z URL (kropki zamienione na podkreślniki)
-- `{identyfikator}` - slug (jeśli podany) lub hash SHA256 URL (pierwsze 16 znaków)
-- `{YYYY-MM-DD-HH-MM-SS}` - data i godzina wykonania zrzutu
-- `{rozszerzenie}` - `png` dla obrazów, `html` dla kodu źródłowego
+Where:
+- `{domain}` - main domain from URL (dots replaced with underscores)
+- `{identifier}` - slug (if provided) or SHA256 hash of URL (first 16 characters)
+- `{YYYY-MM-DD-HH-MM-SS}` - date and time of screenshot
+- `{extension}` - `png` for images, `html` for source code
 
-## Raport
+## Report
 
-Po przetworzeniu wszystkich URL-i aplikacja generuje raport zawierający:
+After processing all URLs, the application generates a report containing:
 
-### 📸 Nowe zrzuty
-URL-e, dla których nie było wcześniejszych zrzutów - pokazuje ścieżki do nowych plików PNG i HTML
+### 📸 New snapshots
+URLs for which there were no previous snapshots - shows paths to new PNG and HTML files
 
-### ✅ Bez zmian
-URL-e, których zmiany wizualne (obraz) i strukturalne (HTML) są poniżej progu 5%
+### ✅ No changes
+URLs whose visual (image) and structural (HTML) changes are below the 5% threshold
 
-### 🔴 Wykryto zmiany
-URL-e ze znaczącymi zmianami (≥ 5%) w obrazie i/lub HTML, wraz ze ścieżkami do wszystkich plików (poprzednich i aktualnych)
+### 🔴 Changes detected
+URLs with significant changes (≥ 5%) in image and/or HTML, along with paths to all files (previous and current)
 
-## Przykład raportu
+## Example report
 
 ```
 ================================================================================
-RAPORT PORÓWNANIA ZRZUTÓW EKRANU
+SCREENSHOT COMPARISON REPORT
 ================================================================================
 
-📸 NOWE ZRZUTY:
+📸 NEW SNAPSHOTS:
 --------------------------------------------------------------------------------
 1. https://example.com [homepage]
-   Obraz: /home/user/.sitecompare/example_com-homepage-2024-01-15-14-30-45.png
+   Image: /home/user/.sitecompare/example_com-homepage-2024-01-15-14-30-45.png
    HTML:  /home/user/.sitecompare/example_com-homepage-2024-01-15-14-30-45.html
 
-✅ BEZ ZMIAN (różnica < 5%):
+✅ NO CHANGES (difference < 5%):
 --------------------------------------------------------------------------------
 1. https://example.com/about [about-page]
-   Różnica obrazu: 0.12%
-   Różnica HTML:   0.05%
-   Aktualny obraz: /home/user/.sitecompare/example_com-about-page-2024-01-15-14-35-22.png
-   Aktualny HTML:  /home/user/.sitecompare/example_com-about-page-2024-01-15-14-35-22.html
+   Image difference: 0.12%
+   HTML difference:  0.05%
+   Current image: /home/user/.sitecompare/example_com-about-page-2024-01-15-14-35-22.png
+   Current HTML:  /home/user/.sitecompare/example_com-about-page-2024-01-15-14-35-22.html
 
-🔴 WYKRYTO ZMIANY (różnica ≥ 5%):
+🔴 CHANGES DETECTED (difference ≥ 5%):
 --------------------------------------------------------------------------------
 1. https://github.com [github-main]
-   Zmiany: Obraz: 15.34%, HTML: 8.45%
-   Poprzedni obraz: /home/user/.sitecompare/github_com-github-main-2024-01-14-10-00-00.png
-   Aktualny obraz:  /home/user/.sitecompare/github_com-github-main-2024-01-15-15-00-00.png
-   Poprzedni HTML:  /home/user/.sitecompare/github_com-github-main-2024-01-14-10-00-00.html
-   Aktualny HTML:   /home/user/.sitecompare/github_com-github-main-2024-01-15-15-00-00.html
+   Changes: Image: 15.34%, HTML: 8.45%
+   Previous image: /home/user/.sitecompare/github_com-github-main-2024-01-14-10-00-00.png
+   Current image:  /home/user/.sitecompare/github_com-github-main-2024-01-15-15-00-00.png
+   Previous HTML:  /home/user/.sitecompare/github_com-github-main-2024-01-14-10-00-00.html
+   Current HTML:   /home/user/.sitecompare/github_com-github-main-2024-01-15-15-00-00.html
 
 ================================================================================
-PODSUMOWANIE:
-  Nowe zrzuty:        1
-  Bez zmian:          1
-  Ze zmianami:        1
-  Razem przetworzono: 3
+SUMMARY:
+  New snapshots:       1
+  No changes:          1
+  With changes:        1
+  Total processed:     3
 ================================================================================
 ```
 
-## Wymagania
+## Requirements
 
-- Node.js (wersja 14 lub nowsza)
+- Node.js (version 14 or newer)
 - npm
 
-## Zależności
+## Dependencies
 
-- **puppeteer**: Wykonywanie zrzutów ekranu stron i pobieranie HTML
-- **pixelmatch**: Porównywanie obrazów na poziomie pikseli
-- **pngjs**: Obsługa plików PNG
-- **diff**: Porównywanie plików HTML line-by-line
+- **puppeteer**: Taking screenshots of pages and fetching HTML
+- **pixelmatch**: Comparing images at pixel level
+- **pngjs**: PNG file handling
+- **diff**: Comparing HTML files line-by-line
 
-## Obsługa błędów
+## Error handling
 
-Aplikacja obsługuje:
-- Nieprawidłowe lub brakujące pliki konfiguracyjne
-- Błędy sieciowe podczas ładowania stron
-- Nieprawidłowe URL-e
-- Błędy zapisu plików
+The application handles:
+- Invalid or missing configuration files
+- Network errors during page loading
+- Invalid URLs
+- File write errors
 
-## Licencja
+## License
 
 MIT

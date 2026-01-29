@@ -34,11 +34,11 @@ async function readConfig(configPath) {
     
     // Validate structure
     if (!config.urls || !Array.isArray(config.urls)) {
-      throw new Error('Plik konfiguracyjny musi zawierać tablicę "urls"');
+      throw new Error('Configuration file must contain a "urls" array');
     }
     
     if (config.urls.length === 0) {
-      throw new Error('Tablica "urls" nie może być pusta');
+      throw new Error('The "urls" array cannot be empty');
     }
     
     // Validate and normalize URLs
@@ -52,29 +52,29 @@ async function readConfig(configPath) {
         // New format
         urlObj = { ...item };
       } else {
-        throw new Error(`Nieprawidłowy element pod indeksem ${index}`);
+        throw new Error(`Invalid element at index ${index}`);
       }
       
       // Validate required fields
       if (!urlObj.url || typeof urlObj.url !== 'string' || !urlObj.url.startsWith('http')) {
-        throw new Error(`Nieprawidłowy URL pod indeksem ${index}: ${urlObj.url}`);
+        throw new Error(`Invalid URL at index ${index}: ${urlObj.url}`);
       }
       
       // Validate and slugify slug if provided
       if (urlObj.slug) {
         if (typeof urlObj.slug !== 'string') {
-          throw new Error(`Pole "slug" musi być tekstem pod indeksem ${index}`);
+          throw new Error(`Field "slug" must be text at index ${index}`);
         }
         urlObj.slug = slugify(urlObj.slug);
         if (!urlObj.slug) {
-          throw new Error(`Pole "slug" jest puste po normalizacji pod indeksem ${index}`);
+          throw new Error(`Field "slug" is empty after normalization at index ${index}`);
         }
       }
       
       // Validate timeout if provided
       if (urlObj.timeout !== undefined) {
         if (typeof urlObj.timeout !== 'number' || urlObj.timeout < 0) {
-          throw new Error(`Pole "timeout" musi być liczbą >= 0 pod indeksem ${index}`);
+          throw new Error(`Field "timeout" must be a number >= 0 at index ${index}`);
         }
       }
       
@@ -84,10 +84,10 @@ async function readConfig(configPath) {
     return config;
   } catch (error) {
     if (error.code === 'ENOENT') {
-      throw new Error(`Nie znaleziono pliku konfiguracyjnego: ${configPath}`);
+      throw new Error(`Configuration file not found: ${configPath}`);
     }
     if (error instanceof SyntaxError) {
-      throw new Error(`Błąd parsowania JSON w pliku ${configPath}: ${error.message}`);
+      throw new Error(`JSON parsing error in file ${configPath}: ${error.message}`);
     }
     throw error;
   }

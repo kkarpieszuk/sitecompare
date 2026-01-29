@@ -14,13 +14,13 @@ async function main() {
       const defaultPath = path.join(process.cwd(), 'sitecompare.json');
       if (fs.existsSync(defaultPath)) {
         configPath = defaultPath;
-        console.log(`Używam domyślnego pliku konfiguracyjnego: ${defaultPath}\n`);
+        console.log(`Using default configuration file: ${defaultPath}\n`);
       } else {
-        console.log('Użycie: sitecompare [ścieżka-do-pliku-konfiguracyjnego]\n');
-        console.log('Przykład: sitecompare conf.json');
-        console.log('lub:      sitecompare /path/to/config.json\n');
-        console.log('Jeśli nie podasz ścieżki, aplikacja spróbuje znaleźć plik "sitecompare.json" w bieżącym katalogu.\n');
-        console.log('Format pliku konfiguracyjnego (JSON):');
+        console.log('Usage: sitecompare [config-file-path]\n');
+        console.log('Example: sitecompare conf.json');
+        console.log('or:      sitecompare /path/to/config.json\n');
+        console.log('If you don\'t provide a path, the application will try to find a "sitecompare.json" file in the current directory.\n');
+        console.log('Configuration file format (JSON):');
         console.log(JSON.stringify({
           urls: [
             {
@@ -35,11 +35,11 @@ async function main() {
             'https://example2.com'
           ]
         }, null, 2));
-        console.log('\nPola obiektu URL:');
-        console.log('  url      - (wymagane) adres strony do monitorowania');
-        console.log('  slug     - (opcjonalne) czytelna nazwa używana w nazwach plików i raportach');
-        console.log('  timeout  - (opcjonalne) czas oczekiwania w sekundach (domyślnie: 6)');
-        console.log('\nMożesz też używać prostych stringów URL (bez slug i timeout).');
+        console.log('\nURL object fields:');
+        console.log('  url      - (required) page address to monitor');
+        console.log('  slug     - (optional) human-readable name used in filenames and reports');
+        console.log('  timeout  - (optional) wait time in seconds (default: 6)');
+        console.log('\nYou can also use simple URL strings (without slug and timeout).');
         process.exit(1);
       }
     }
@@ -47,7 +47,7 @@ async function main() {
     // Run the main application logic
     await run(configPath);
   } catch (error) {
-    console.error('Błąd:', error.message);
+    console.error('Error:', error.message);
     process.exit(1);
   }
 }

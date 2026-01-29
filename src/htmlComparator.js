@@ -47,7 +47,7 @@ async function compareHtml(html1Path, html2Path, threshold = 5) {
       totalLines
     };
   } catch (error) {
-    throw new Error(`Błąd podczas porównywania HTML: ${error.message}`);
+    throw new Error(`Error comparing HTML: ${error.message}`);
   }
 }
 

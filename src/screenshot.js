@@ -9,29 +9,29 @@ const puppeteer = require('puppeteer');
 async function takeScreenshot(url, timeout = 6) {
   let browser;
   try {
-    console.log(`  Wykonywanie zrzutu ekranu dla: ${url}`);
-
+    console.log(`  Taking screenshot of: ${url}`);
+    
     browser = await puppeteer.launch({
       headless: 'new',
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
-
+    
     const page = await browser.newPage();
-
+    
     // Set viewport size
     await page.setViewport({
       width: 1920,
       height: 1080
     });
-
+    
     // Navigate to URL with timeout
     await page.goto(url, {
       waitUntil: 'networkidle2',
       timeout: 30000
     });
-
+    
     // Wait for dynamic content (e.g., cookie banners, lazy loading)
-    console.log(`  Oczekiwanie ${timeout} sekund na załadowanie dynamicznych elementów...`);
+    console.log(`  Waiting ${timeout} seconds for dynamic elements to load...`);
     await new Promise(resolve => setTimeout(resolve, timeout * 1000));
 
     // Take screenshot
@@ -45,7 +45,7 @@ async function takeScreenshot(url, timeout = 6) {
 
     return { screenshot, html };
   } catch (error) {
-    throw new Error(`Błąd podczas wykonywania zrzutu ekranu ${url}: ${error.message}`);
+    throw new Error(`Error taking screenshot of ${url}: ${error.message}`);
   } finally {
     if (browser) {
       await browser.close();

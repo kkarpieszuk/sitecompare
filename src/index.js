@@ -11,12 +11,12 @@ const { generateReport } = require('./report');
  */
 async function run(configPath) {
   try {
-    console.log('SiteCompare - Narzędzie do porównywania zrzutów ekranu stron\n');
+    console.log('SiteCompare - Website Screenshot Comparison Tool\n');
     
     // Read configuration
     const config = await readConfig(configPath);
-    console.log(`Załadowano konfigurację z: ${configPath}`);
-    console.log(`Znaleziono ${config.urls.length} URL(i) do przetworzenia\n`);
+    console.log(`Loaded configuration from: ${configPath}`);
+    console.log(`Found ${config.urls.length} URL(s) to process\n`);
     
     const results = [];
     const THRESHOLD = 5; // 5% threshold
@@ -33,7 +33,7 @@ async function run(configPath) {
       
       // Display information
       const displayName = slug ? `${url} [${slug}]` : url;
-      console.log(`[${i + 1}/${config.urls.length}] Przetwarzanie: ${displayName}`);
+      console.log(`[${i + 1}/${config.urls.length}] Processing: ${displayName}`);
       
       try {
         // Check if screenshot and HTML already exist
@@ -47,8 +47,8 @@ async function run(configPath) {
         
         if (!existingScreenshot || !existingHtml) {
           // First capture for this URL
-          console.log(`  ✓ Pierwszy zrzut zapisany:`);
-          console.log(`    Obraz: ${newScreenshotPath}`);
+          console.log(`  ✓ First snapshot saved:`);
+          console.log(`    Image: ${newScreenshotPath}`);
           console.log(`    HTML:  ${newHtmlPath}\n`);
           results.push({
             type: 'new',
@@ -59,18 +59,18 @@ async function run(configPath) {
           });
         } else {
           // Compare with existing screenshot and HTML
-          console.log(`  Porównywanie z poprzednim zrzutem...`);
+          console.log(`  Comparing with previous snapshot...`);
           const imageComparison = await compareImages(existingScreenshot, newScreenshotPath, THRESHOLD);
-          console.log(`    Obraz: ${imageComparison.differencePercent}%`);
+          console.log(`    Image: ${imageComparison.differencePercent}%`);
           
           const htmlComparison = await compareHtml(existingHtml, newHtmlPath, THRESHOLD);
-          console.log(`    HTML:  ${htmlComparison.differencePercent}% (${htmlComparison.changedLines}/${htmlComparison.totalLines} linii)`);
+          console.log(`    HTML:  ${htmlComparison.differencePercent}% (${htmlComparison.changedLines}/${htmlComparison.totalLines} lines)`);
           
           const hasImageChanges = imageComparison.hasChanges;
           const hasHtmlChanges = htmlComparison.hasChanges;
           
           if (hasImageChanges || hasHtmlChanges) {
-            console.log(`  ⚠ Wykryto zmiany!\n`);
+            console.log(`  ⚠ Changes detected!\n`);
             results.push({
               type: 'changed',
               url,
@@ -85,7 +85,7 @@ async function run(configPath) {
               hasHtmlChanges
             });
           } else {
-            console.log(`  ✓ Brak zmian\n`);
+            console.log(`  ✓ No changes\n`);
             results.push({
               type: 'unchanged',
               url,
@@ -100,7 +100,7 @@ async function run(configPath) {
           }
         }
       } catch (error) {
-        console.error(`  ✗ Błąd: ${error.message}\n`);
+        console.error(`  ✗ Error: ${error.message}\n`);
         results.push({
           type: 'error',
           url,
