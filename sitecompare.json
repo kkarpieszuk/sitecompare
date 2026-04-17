@@ -9,5 +9,11 @@
       "slug": "github-main",
       "timeout": 8
     }
+  ],
+  "manual": [
+    {
+      "url": "https://example.com",
+      "task": "Visit this site and click this and that."
+    }
   ]
 }

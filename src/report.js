@@ -1,8 +1,12 @@
 /**
  * Generates and displays a report of screenshot comparisons
  * @param {Array} results - Array of result objects
+ * @param {Array<{url: string, task: string}>} manualTasks - Optional manual tasks list
  */
-function generateReport(results) {
+function generateReport(results, manualTasks = []) {
+  const RED = '\x1b[31m';
+  const RESET = '\x1b[0m';
+
   console.log('\n' + '='.repeat(80));
   console.log('SCREENSHOT COMPARISON REPORT');
   console.log('='.repeat(80) + '\n');
@@ -74,6 +78,16 @@ function generateReport(results) {
   console.log(`  With changes:        ${changed.length}`);
   console.log(`  Total processed:     ${results.length}`);
   console.log('='.repeat(80) + '\n');
+
+  if (manualTasks.length > 0) {
+    console.log(`${RED}🧪 MANUAL TESTS TO RUN:${RESET}`);
+    console.log(`${RED}${'-'.repeat(80)}${RESET}`);
+    manualTasks.forEach((manualTask, index) => {
+      console.log(`${RED}${index + 1}. ${manualTask.task}${RESET}`);
+      console.log(`${RED}   URL: ${manualTask.url}${RESET}`);
+      console.log('');
+    });
+  }
 }
 
 module.exports = { generateReport };

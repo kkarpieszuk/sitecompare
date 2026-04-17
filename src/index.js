@@ -111,7 +111,7 @@ async function run(configPath) {
     }
     
     // Generate and display report
-    generateReport(results);
+    generateReport(results, config.manual || []);
   } catch (error) {
     throw error;
   }

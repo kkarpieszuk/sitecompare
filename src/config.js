@@ -21,7 +21,7 @@ function slugify(text) {
 /**
  * Reads and validates the configuration file
  * @param {string} configPath - Path to the config file
- * @returns {Promise<{urls: Array<{url: string, slug?: string, timeout?: number}>}>} - Parsed configuration
+ * @returns {Promise<{urls: Array<{url: string, slug?: string, timeout?: number}>, manual?: Array<{url: string, task: string}>}>} - Parsed configuration
  */
 async function readConfig(configPath) {
   try {
@@ -81,6 +81,32 @@ async function readConfig(configPath) {
       return urlObj;
     });
     
+    // Validate and normalize manual tasks if provided (optional)
+    if (config.manual !== undefined) {
+      if (!Array.isArray(config.manual)) {
+        throw new Error('Field "manual" must be an array');
+      }
+
+      config.manual = config.manual.map((item, index) => {
+        if (typeof item !== 'object' || item === null) {
+          throw new Error(`Invalid element in "manual" at index ${index}`);
+        }
+
+        if (!item.url || typeof item.url !== 'string' || !item.url.startsWith('http')) {
+          throw new Error(`Invalid "manual.url" at index ${index}: ${item.url}`);
+        }
+
+        if (!item.task || typeof item.task !== 'string' || item.task.trim().length === 0) {
+          throw new Error(`Invalid "manual.task" at index ${index}`);
+        }
+
+        return {
+          url: item.url,
+          task: item.task.trim()
+        };
+      });
+    }
+
     return config;
   } catch (error) {
     if (error.code === 'ENOENT') {
